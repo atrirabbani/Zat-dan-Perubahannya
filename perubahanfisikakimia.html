@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petualangan Sains Pak Chemis: Perubahan Fisika vs Kimia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+
+        /* Glassmorphism card */
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .chat-bubble-left {
+            position: relative;
+            border-bottom-left-radius: 2px !important;
+        }
+
+        .chat-bubble-right {
+            position: relative;
+            border-bottom-right-radius: 2px !important;
+        }
+
+        /* Pulse Animation */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+            50% { shadow: 0 0 30px rgba(99, 102, 241, 0.8); }
+        }
+
+        .glow-effect {
+            animation: pulse-glow 3s infinite;
+        }
+
+        /* Floating Avatar */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .floating-avatar {
+            animation: float 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="sticky top-0 z-50 glass-card border-b border-slate-700/50 px-4 py-3">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30">
+                    👨‍🔬
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white leading-tight">Lab Sains Pak Chemis</h1>
+                    <p class="text-xs text-indigo-300">IPA Kelas 7 SMP • Perubahan Fisika & Perubahan Kimia</p>
+                </div>
+            </div>
+            <!-- Score & Progress -->
+            <div class="flex items-center gap-4">
+                <div class="bg-slate-800/80 border border-slate-700 px-3 py-1.5 rounded-full flex items-center gap-2">
+                    <span class="text-amber-400"><i class="fa-solid fa-star"></i></span>
+                    <span id="score-display" class="font-bold text-amber-300">0</span>
+                    <span class="text-xs text-slate-400">Poin</span>
+                </div>
+                <button id="reset-btn" title="Ulangi dari Awal" class="text-slate-400 hover:text-white transition-colors text-sm">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6">
+
+        <!-- Progress Tracker Bar -->
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center text-xs md:text-sm">
+            <div id="step-1-indicator" class="flex items-center gap-2 text-indigo-400 font-semibold">
+                <div class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">1</div>
+                <span>Sapaan & Hook</span>
+            </div>
+            <div class="h-0.5 flex-1 bg-slate-700 mx-2"></div>
+            <div id="step-2-indicator" class="flex items-center gap-2 text-slate-500 font-medium">
+                <div class="w-6 h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">2</div>
+                <span>Materi Ringkas</span>
+            </div>
+            <div class="h-0.5 flex-1 bg-slate-700 mx-2"></div>
+            <div id="step-3-indicator" class="flex items-center gap-2 text-slate-500 font-medium">
+                <div class="w-6 h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">3</div>
+                <span>Mini Kuis (1-4)</span>
+            </div>
+            <div class="h-0.5 flex-1 bg-slate-700 mx-2"></div>
+            <div id="step-4-indicator" class="flex items-center gap-2 text-slate-500 font-medium">
+                <div class="w-6 h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs">4</div>
+                <span>Diskusi & QnA</span>
+            </div>
+        </div>
+
+        <!-- Chat Container -->
+        <div id="chat-container" class="flex-1 glass-card rounded-3xl p-4 md:p-6 flex flex-col gap-4 overflow-y-auto max-h-[600px]">
+            <!-- Messages will be injected here via JS -->
+        </div>
+
+        <!-- Action / Input Area -->
+        <div class="glass-card rounded-2xl p-4 flex flex-col gap-3">
+            <!-- Dynamic Choice Buttons -->
+            <div id="options-container" class="hidden grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Dynamic Buttons -->
+            </div>
+
+            <!-- Free Text Input Form -->
+            <form id="chat-form" class="flex gap-2 items-center">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Ketik jawaban atau pertanyaanmu di sini..." 
+                    class="flex-1 bg-slate-800/90 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-white placeholder-slate-400 transition-all"
+                    autocomplete="off"
+                >
+                <button 
+                    type="submit" 
+                    id="send-btn"
+                    class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-semibold px-5 py-3 rounded-xl transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/30"
+                >
+                    <span>Kirim</span>
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500 border-t border-slate-800">
+        <p>Lab IPA SMP Kelas 7 • Perubahan Fisika vs Perubahan Kimia • Media Pembelajaran Interaktif bersama Pak Chemis</p>
+    </footer>
+
+    <!-- JavaScript Game Logic -->
+    <script>
+        // State Management
+        const state = {
+            step: 1, // 1: Hook, 2: Material, 3: Quiz Cases, 4: Reflection & QA
+            currentCase: 0,
+            score: 0,
+            answers: [],
+            waitingForCaseAnswer: false
+        };
+
+        // Quiz Cases Data
+        const quizCases = [
+            {
+                id: 1,
+                title: "Kasus 1: Memotong Buah Apel 🍎🔪",
+                description: "Ibu memotong buah apel segar menjadi dadu-dadu kecil untuk dijadikan bahan es buah segar.",
+                correctType: "fisika",
+                icon: "🍎",
+                explanation: "Tepat sekali! Memotong apel hanya mengubah **ukuran dan bentuk fisiknya**, dari apel utuh menjadi potongan kecil. Tidak ada zat baru yang terbentuk, sehingga disebut **Perubahan Fisika**! ⭐ (+25 Poin)"
+            },
+            {
+                id: 2,
+                title: "Kasus 2: Apel Berubah Kecokelatan 🍏➡️🤎",
+                description: "Satu potongan apel tadi tertinggal di meja terbuka selama beberapa jam, lalu warnanya berubah menjadi kecokelatan.",
+                correctType: "kimia",
+                icon: "🤎",
+                explanation: "Hebat sekali! Perubahan warna cokelat terjadi karena reaksi oksidasi dengan udara yang menghasilkan **zat baru**. Reaksi ini tidak bisa kembali ke bentuk semula, jadi termasuk **Perubahan Kimia**! ⭐ (+25 Poin)"
+            },
+            {
+                id: 3,
+                title: "Kasus 3: Kapur Barus Menyublim ⚪💨",
+                description: "Kapur barus (kamper) di dalam lemari pakaian makin hari makin mengecil dan menebarkan wangi semerbak.",
+                correctType: "fisika",
+                icon: "💨",
+                explanation: "Pintar! Kapur barus mengecil karena mengalami **penyubliman** (perubahan wujud dari padat jadi gas). Zat penyusunnya tetap sama, hanya wujud fisiknya yang berubah. Ini adalah **Perubahan Fisika**! ⭐ (+25 Poin)"
+            },
+            {
+                id: 4,
+                title: "Kasus 4: Kertas Terbakar Jadi Abu 📄🔥🖤",
+                description: "Kertas bekas coretan terbakar dalam api hingga hangus dan berubah menjadi abu hitam.",
+                correctType: "kimia",
+                icon: "🔥",
+                explanation: "Luar biasa! Pembakaran menghasilkan zat baru berupa **abu, asap, dan gas karbon**. Abu hitam tidak bisa diubah kembali menjadi kertas utuh. Ini adalah contoh nyata **Perubahan Kimia**! ⭐ (+25 Poin)"
+            }
+        ];
+
+        // Sound FX Utility
+        function playSound(type) {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(659.25, ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.3);
+                } else if (type === 'pop') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, ctx.currentTime);
+                    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.1);
+                }
+            } catch (e) {}
+        }
+
+        // DOM Elements
+        const chatContainer = document.getElementById('chat-container');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const optionsContainer = document.getElementById('options-container');
+        const scoreDisplay = document.getElementById('score-display');
+        const resetBtn = document.getElementById('reset-btn');
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 50);
+        }
+
+        // Add Message Bubble
+        function addMessage(sender, text, isHtml = false) {
+            const isPakChemis = sender === 'pak';
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-3 my-2 ${isPakChemis ? 'items-start' : 'items-end justify-end'}`;
+
+            if (isPakChemis) {
+                msgDiv.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-indigo-600 flex-shrink-0 flex items-center justify-center font-bold text-xl shadow-md floating-avatar">
+                        👨‍🔬
+                    </div>
+                    <div class="max-w-[85%] sm:max-w-[75%] bg-slate-800 border border-slate-700/80 rounded-2xl p-4 text-sm text-slate-200 leading-relaxed shadow-lg chat-bubble-left">
+                        <div class="font-bold text-indigo-400 mb-1 text-xs flex items-center gap-1">
+                            <span>Pak Chemis</span>
+                            <span class="bg-indigo-900/50 text-indigo-300 text-[10px] px-1.5 py-0.5 rounded border border-indigo-700">Asisten Lab IPA</span>
+                        </div>
+                        <div>${isHtml ? text : text.replace(/\n/g, '<br>')}</div>
+                    </div>
+                `;
+            } else {
+                msgDiv.innerHTML = `
+                    <div class="max-w-[85%] sm:max-w-[75%] bg-indigo-600 rounded-2xl p-4 text-sm text-white leading-relaxed shadow-lg chat-bubble-right">
+                        <div class="font-semibold text-indigo-200 mb-1 text-[10px] text-right">Kamu (Scientist Muda)</div>
+                        <div>${isHtml ? text : text.replace(/\n/g, '<br>')}</div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-emerald-600 flex-shrink-0 flex items-center justify-center font-bold text-xl shadow-md">
+                        🧑‍🎓
+                    </div>
+                `;
+            }
+
+            chatContainer.appendChild(msgDiv);
+            playSound('pop');
+            scrollToBottom();
+        }
+
+        // Typing Indicator Effect
+        function showTypingIndicator(callback) {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing-indicator';
+            typingDiv.className = 'flex gap-3 my-2 items-start';
+            typingDiv.innerHTML = `
+                <div class="w-10 h-10 rounded-full bg-indigo-600 flex-shrink-0 flex items-center justify-center font-bold text-xl shadow-md">
+                    👨‍🔬
+                </div>
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl px-4 py-3 text-xs text-indigo-300 flex items-center gap-2 shadow-lg">
+                    <span>Pak Chemis sedang mengetik</span>
+                    <span class="inline-flex gap-1">
+                        <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce"></span>
+                        <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                        <span class="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+                    </span>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            scrollToBottom();
+
+            setTimeout(() => {
+                const indicator = document.getElementById('typing-indicator');
+                if (indicator) indicator.remove();
+                if (callback) callback();
+            }, 1200);
+        }
+
+        function addScore(points) {
+            state.score += points;
+            scoreDisplay.textContent = state.score;
+            playSound('correct');
+        }
+
+        function updateStepIndicator(activeStep) {
+            for (let i = 1; i <= 4; i++) {
+                const el = document.getElementById(`step-${i}-indicator`);
+                if (!el) continue;
+                if (i === activeStep) {
+                    el.className = "flex items-center gap-2 text-indigo-400 font-semibold";
+                    el.children[0].className = "w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow-md shadow-indigo-500/50";
+                } else if (i < activeStep) {
+                    el.className = "flex items-center gap-2 text-emerald-400 font-medium";
+                    el.children[0].className = "w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs";
+                } else {
+                    el.className = "flex items-center gap-2 text-slate-500 font-medium";
+                    el.children[0].className = "w-6 h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-xs";
+                }
+            }
+        }
+
+        function showQuizOptions() {
+            optionsContainer.innerHTML = '';
+            optionsContainer.classList.remove('hidden');
+            optionsContainer.classList.add('grid');
+
+            const btnFisika = document.createElement('button');
+            btnFisika.className = "bg-sky-600 hover:bg-sky-500 active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg border border-sky-400/30 flex items-center justify-center gap-2 transition-all";
+            btnFisika.innerHTML = `🧊 <span>Perubahan Fisika</span>`;
+            btnFisika.onclick = () => handleQuizAnswer('fisika');
+
+            const btnKimia = document.createElement('button');
+            btnKimia.className = "bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-bold py-3 px-4 rounded-xl shadow-lg border border-amber-400/30 flex items-center justify-center gap-2 transition-all";
+            btnKimia.innerHTML = `🧪 <span>Perubahan Kimia</span>`;
+            btnKimia.onclick = () => handleQuizAnswer('kimia');
+
+            optionsContainer.appendChild(btnFisika);
+            optionsContainer.appendChild(btnKimia);
+            scrollToBottom();
+        }
+
+        function hideOptions() {
+            optionsContainer.classList.add('hidden');
+            optionsContainer.classList.remove('grid');
+            optionsContainer.innerHTML = '';
+        }
+
+        // Start Learning Journey
+        function initJourney() {
+            state.step = 1;
+            state.currentCase = 0;
+            state.score = 0;
+            scoreDisplay.textContent = "0";
+            chatContainer.innerHTML = '';
+            updateStepIndicator(1);
+
+            showTypingIndicator(() => {
+                const hookText = `
+                    <strong>Halo, Scientist Muda Kelas 7! 👋✨</strong><br><br>
+                    Selamat datang di Laboratorium IPA interaktif bersama <strong>Pak Chemis</strong>!<br>
+                    Bagaimana kabarmu hari ini? Semoga makin penasaran dan semangat bereksplorasi ya! 🚀<br><br>
+                    Sebelum kita mulai investigasi, Pak Chemis mau tanya dulu nih...<br><br>
+                    🧊 <em>Pernahkah kamu membuat es teh manis lalu membiarkannya sebentar di meja hingga es batunya meleleh jadi air?</em><br><br>
+                    🍞 <em>Serta, coba bandingkan dengan nasi putih hangat di piring yang dibiarkan 3 hari hingga menjadi basi, berbau asam, dan tumbuh jamur?</em><br><br>
+                    🤔 <strong>Pertanyaan Pemantik:</strong> Menurutmu, apa beda utama antara kejadian es mencair dengan nasi yang menjadi basi? Coba tebak sebisamu dulu ya!
+                `;
+                addMessage('pak', hookText, true);
+            });
+        }
+
+        // Process User Step Flow
+        function handleUserResponse(userText) {
+            if (!userText.trim()) return;
+
+            addMessage('user', userText);
+            userInput.value = '';
+
+            // Step 1: Hook response -> Move to Material Explanation
+            if (state.step === 1) {
+                state.step = 2;
+                updateStepIndicator(2);
+
+                showTypingIndicator(() => {
+                    const materialText = `
+                        Jawaban yang mantap sekali! 👏💯 Tebakanmu cerdas!<br><br>
+                        Di ilmu IPA SMP Kelas 7, dua peristiwa tadi menggambarkan dua jenis perubahan zat, yaitu <strong>Perubahan Fisika</strong> dan <strong>Perubahan Kimia</strong>.<br>
+                        Yuk, pahami kuncinya bersama Pak Chemis! 👇<br><br>
+                        
+                        <div class="bg-sky-950/60 border border-sky-600/40 rounded-xl p-3 my-2">
+                            <strong class="text-sky-300 flex items-center gap-1">🧊 1. Perubahan Fisika</strong>
+                            <p class="text-xs text-sky-100 mt-1">Perubahan yang <strong>TIDAK MENGHASILKAN ZAT BARU</strong>. Yang berubah hanya wujud, bentuk, atau ukurannya saja.</p>
+                            <ul class="text-xs list-disc list-inside text-sky-200 mt-1 space-y-0.5">
+                                <li>Dapat kembali ke wujud semula (<em>reversible</em>).</li>
+                                <li>Contoh: Es mencair 🧊➡️💧, kertas dilipat 📄, air mendidih 💨.</li>
+                            </ul>
+                        </div>
+
+                        <div class="bg-amber-950/60 border border-amber-600/40 rounded-xl p-3 my-2">
+                            <strong class="text-amber-300 flex items-center gap-1">🧪 2. Perubahan Kimia</strong>
+                            <p class="text-xs text-amber-100 mt-1">Perubahan yang <strong>MENGHASILKAN ZAT BARU</strong> dengan sifat yang berbeda dari zat asal.</p>
+                            <ul class="text-xs list-disc list-inside text-amber-200 mt-1 space-y-0.5">
+                                <li>Tidak dapat kembali ke wujud asal (<em>irreversible</em>).</li>
+                                <li>Disertai ciri: perubahan warna, timbul bau, gas/endapan, atau perubahan suhu.</li>
+                                <li>Contoh: Nasi basi 🍚, kayu terbakar 🪵🔥, besi berkarat 🔩.</li>
+                            </ul>
+                        </div>
+
+                        Bagaimana, sudah paham bedanya? Jika sudah siap, mari uji pemahamanmu di **Mini Kuis Detektif Sains**! Ketik <strong>"SIAP"</strong> atau klik tombol di bawah ini! 🕵️‍♂️
+                    `;
+                    addMessage('pak', materialText, true);
+
+                    // Show quick action button
+                    optionsContainer.innerHTML = '';
+                    optionsContainer.classList.remove('hidden');
+                    optionsContainer.classList.add('grid');
+                    const startQuizBtn = document.createElement('button');
+                    startQuizBtn.className = "col-span-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all text-center";
+                    startQuizBtn.innerHTML = "🚀 Mulai Mini Kuis Detektif Sains!";
+                    startQuizBtn.onclick = () => {
+                        hideOptions();
+                        startQuizPhase();
+                    };
+                    optionsContainer.appendChild(startQuizBtn);
+                });
+            }
+            // Step 2 waiting for readiness
+            else if (state.step === 2) {
+                hideOptions();
+                startQuizPhase();
+            }
+            // Step 3 Quiz Cases
+            else if (state.step === 3) {
+                const lower = userText.toLowerCase();
+                if (lower.includes('fisika') || lower.includes('kimia')) {
+                    const guessedType = lower.includes('fisika') ? 'fisika' : 'kimia';
+                    processQuizResult(guessedType);
+                } else {
+                    showTypingIndicator(() => {
+                        addMessage('pak', `Tebak ya: Apakah kasus ini termasuk **Perubahan Fisika** atau **Perubahan Kimia**? Kamu juga bisa langsung memilih tombol di bawah ini! 👇`, true);
+                    });
+                }
+            }
+            // Step 4 Q&A and Reflection
+            else if (state.step === 4) {
+                showTypingIndicator(() => {
+                    const reply = `
+                        Pertanyaan / tanggapan yang sangat bagus, Scientist Muda! 💡<br><br>
+                        Ingat selalu kata kuncinya dari Pak Chemis:<br>
+                        - Jika **tidak ada zat baru** & hanya ganti wujud/bentuk = **Perubahan Fisika**.<br>
+                        - Jika **terbentuk zat baru** (muncul bau, warna baru, abu/karat) = **Perubahan Kimia**.<br><br>
+                        Ada hal lain tentang perubahan zat dalam kehidupan sehari-hari yang ingin kamu tanyakan lagi? 🔬✨
+                    `;
+                    addMessage('pak', reply, true);
+                });
+            }
+        }
+
+        // Start Quiz Steps
+        function startQuizPhase() {
+            state.step = 3;
+            state.currentCase = 0;
+            updateStepIndicator(3);
+            presentCase(0);
+        }
+
+        // Present a Specific Quiz Case
+        function presentCase(index) {
+            hideOptions();
+            const quiz = quizCases[index];
+            showTypingIndicator(() => {
+                const caseHtml = `
+                    <div class="bg-indigo-950/80 border border-indigo-500/50 rounded-xl p-4 shadow-inner">
+                        <div class="text-xs uppercase font-bold text-indigo-400 tracking-wider">Detektif Sains • ${quiz.title}</div>
+                        <div class="text-base font-semibold text-white my-2">${quiz.description}</div>
+                        <div class="text-xs text-indigo-200">Analisis peristiwa ini: Apakah termasuk <strong>Perubahan Fisika</strong> atau <strong>Perubahan Kimia</strong>?</div>
+                    </div>
+                `;
+                addMessage('pak', caseHtml, true);
+                showQuizOptions();
+            });
+        }
+
+        // Handle Quiz Option Selection
+        function handleQuizAnswer(selectedType) {
+            hideOptions();
+            addMessage('user', `Menurut saya, ini adalah Perubahan ${selectedType.toUpperCase()}.`);
+            processQuizResult(selectedType);
+        }
+
+        // Process Quiz Evaluation
+        function processQuizResult(selectedType) {
+            const quiz = quizCases[state.currentCase];
+            const isCorrect = selectedType === quiz.correctType;
+
+            showTypingIndicator(() => {
+                if (isCorrect) {
+                    addScore(25);
+                    addMessage('pak', `🎉 **Tepat Sekali! Pak Chemis Bangga!**<br>${quiz.explanation}`, true);
+                } else {
+                    addMessage('pak', `😊 **Hampir Tepat! Yuk Cermati Lagi...**<br>${quiz.explanation}`, true);
+                }
+
+                // Advance to Next Case or Complete Quiz
+                state.currentCase++;
+
+                if (state.currentCase < quizCases.length) {
+                    setTimeout(() => {
+                        presentCase(state.currentCase);
+                    }, 1500);
+                } else {
+                    setTimeout(() => {
+                        completeQuizPhase();
+                    }, 1500);
+                }
+            });
+        }
+
+        // Complete Quiz Phase and Move to Summary/Reflection
+        function completeQuizPhase() {
+            state.step = 4;
+            updateStepIndicator(4);
+
+            showTypingIndicator(() => {
+                const badge = state.score >= 75 ? '🏆 Detektif IPA Master!' : '⭐ Detektif IPA Hebat!';
+                const summaryHtml = `
+                    <div class="bg-gradient-to-r from-amber-950/80 to-indigo-950/80 border border-amber-500/50 rounded-2xl p-5 text-center my-2 shadow-xl">
+                        <div class="text-3xl mb-1">🎉 🧪 👏</div>
+                        <h3 class="text-lg font-bold text-amber-300">${badge}</h3>
+                        <p class="text-sm text-slate-200 mt-1">Kamu telah menyelesaikan seluruh tantangan studi kasus di Lab Pak Chemis dengan skor:</p>
+                        <div class="text-3xl font-extrabold text-amber-400 my-2">${state.score} / 100 Poin</div>
+                        <p class="text-xs text-indigo-200">Luar biasa! Kamu sudah paham membedakan mana Perubahan Fisika dan Perubahan Kimia.</p>
+                    </div>
+                    <br>
+                    <strong>Ruang Diskusi & Tanya Jawab:</strong><br>
+                    Bagaimana pengalaman belajarmu hari ini? Apakah ada fenomena perubahan zat lain di rumah atau sekolah yang membuatmu penasaran? 🎓✨<br><br>
+                    <em>Tuliskan pertanyaanmu di kolom bawah ya, Pak Chemis siap menjawab!</em> 👨‍🔬
+                `;
+                addMessage('pak', summaryHtml, true);
+            });
+        }
+
+        // Event Listeners
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            handleUserResponse(userInput.value);
+        });
+
+        resetBtn.addEventListener('click', () => {
+            if (confirm("Apakah kamu ingin mengulang simulasi pembelajaran bersama Pak Chemis dari awal?")) {
+                initJourney();
+            }
+        });
+
+        // Initialize App on Load
+        window.onload = () => {
+            initJourney();
+        };
+    </script>
+</body>
+</html>
